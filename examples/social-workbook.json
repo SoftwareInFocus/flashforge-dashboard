@@ -1,0 +1,124 @@
+{
+  "version": 1,
+  "syncedAt": "2026-01-08T12:00:00Z",
+  "tabs": {
+    "Post Metrics": [
+      [
+        "Account",
+        "Post URL",
+        "Platform Post ID",
+        "Publish Date/Time",
+        "Format",
+        "Content Pillar",
+        "Hook",
+        "Trend or Evergreen",
+        "Trend/Example Reel URL",
+        "Metric Window",
+        "Snapshot Date",
+        "Reach",
+        "Non-Follower Reach",
+        "Impressions",
+        "Views/Plays",
+        "Avg Watch Time",
+        "Retention/Completion Rate",
+        "Shares",
+        "Saves",
+        "Comments",
+        "Likes",
+        "Profile Visits",
+        "Follows Attributed",
+        "Link Clicks",
+        "Leads/Inquiries",
+        "Source Timestamp",
+        "Metric Collected At",
+        "Notes"
+      ],
+      [
+        "Example account",
+        "https://example.com/post",
+        "sample-post",
+        "2026-01-01 09:00 UTC",
+        "Reel",
+        "Creative process",
+        "A fictional sample post",
+        "",
+        "",
+        "7-day",
+        "2026-01-08",
+        "500",
+        "",
+        "",
+        "750",
+        "",
+        "",
+        "12",
+        "8",
+        "4",
+        "30",
+        "10",
+        "2",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ]
+    ],
+    "Weekly Analysis": [
+      [
+        "Week",
+        "Account",
+        "Best Post by Reach",
+        "Best Post by Shares+Saves",
+        "Best Reel by Watch Time/Retention",
+        "Best Post by Profile Actions/Leads",
+        "Patterns to Repeat",
+        "Patterns to Change",
+        "Stop Testing",
+        "Trend vs Evergreen",
+        "Notes"
+      ]
+    ],
+    "Experiments": [
+      [
+        "Date",
+        "Hypothesis",
+        "Variable Tested",
+        "Posts Compared",
+        "Primary Success Metric",
+        "Result",
+        "Confidence",
+        "Next Action"
+      ]
+    ],
+    "Run Log": [
+      [
+        "Run Date/Time",
+        "Accounts Checked",
+        "Posts Updated",
+        "Snapshots Added",
+        "Missing Sources/Permissions",
+        "Data Quality Issues",
+        "Ready for Next Planning Run"
+      ]
+    ],
+    "Muse Daily Scout": [
+      [
+        "schema_version",
+        "id",
+        "scouted_at",
+        "platform",
+        "opportunity_type",
+        "creator",
+        "source_url",
+        "topic",
+        "title",
+        "reason",
+        "score",
+        "draft_text",
+        "status",
+        "notes"
+      ]
+    ]
+  }
+}

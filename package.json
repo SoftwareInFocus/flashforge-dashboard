@@ -13,7 +13,10 @@
     "plugin:start": "node plugin/dist/server.mjs",
     "plugin:http": "node plugin/dist/server.mjs --http",
     "plugin:test": "npm run plugin:build && node --import tsx --test tests/plugin.test.ts",
-    "plugin:preview": "node scripts/preview-plugin.mjs"
+    "plugin:preview": "node scripts/preview-plugin.mjs",
+    "social:sync": "node --import tsx scripts/sync-social.ts",
+    "social:watch": "node --import tsx scripts/sync-social.ts --watch",
+    "social:validate": "node --import tsx scripts/validate-social-data.ts"
   },
   "keywords": [],
   "author": "",

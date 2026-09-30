@@ -2,7 +2,6 @@
 import { useEffect, useState } from 'react';
 import type { Snapshot } from '../lib/status';
 import { PrinterDashboard } from '../components/PrinterDashboard';
-import { SocialDashboard } from '../components/SocialDashboard';
 export default function Dashboard() {
  const [snapshot,setSnapshot]=useState<Snapshot|null>(null);
  const [last,setLast]=useState<string|null>(null);
@@ -20,5 +19,5 @@ export default function Dashboard() {
   document.addEventListener('visibilitychange',wake);void poll();
   return()=>{alive=false;clearTimeout(timer);controller?.abort();document.removeEventListener('visibilitychange',wake);};
  },[]);
- return <><PrinterDashboard state={snapshot} message={snapshot?.message??'Connecting to your printer…'} ready={snapshot!==null} last={last}/><SocialDashboard/></>;
+ return <PrinterDashboard state={snapshot} message={snapshot?.message??'Connecting to your printer…'} ready={snapshot!==null} last={last}/>;
 }

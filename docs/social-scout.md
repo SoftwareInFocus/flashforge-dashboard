@@ -1,14 +1,14 @@
 # Social scout integration
 
-The existing printer endpoints, polling cadence and stored-print workflow are independent of `/api/social`. Google Sheets is the authoritative scout store. The dashboard reads the latest sheet snapshot every 60 seconds and caches it in memory, with shared in-flight reads. It does not write to the workbook. No SQLite migration is required: this recovered dashboard uses local JSON print receipts, not SQLite.
+The existing printer endpoints, polling cadence and stored-print workflow are independent of `/api/social`. Google Sheets is the authoritative scout store. A separate sync command reads the workbook and atomically writes a validated private JSON snapshot. Dashboard HTTP requests read only that local snapshot every 60 seconds, with shared in-flight reads. It does not write to the workbook. No SQLite migration is required: this recovered dashboard uses local JSON print receipts, not SQLite.
 
 ## Private connection
 
 1. Enable the Google Sheets API in your Google Cloud project.
 2. Create a service account for this reader and share only the intended workbook with its email as **Viewer**. Keep the workbook private. Do not publish it to the web.
 3. Store its JSON credentials outside the repository. Set `GOOGLE_APPLICATION_CREDENTIALS` to the absolute local path in `.env.local`.
-4. Set `SOCIAL_SHEET_ID` privately in `.env.local`. Set `SOCIAL_SHEET_TAB="Muse Daily Scout"`. Restart the local server.
-5. Open the dashboard. Check `Social growth` says connected and the last successful read advances. New daily data becomes visible within a minute.
+4. Set `SOCIAL_SHEET_ID` privately in `.env.local`. The workbook must contain `Post Metrics`, `Weekly Analysis`, `Experiments`, `Run Log`, and `Muse Daily Scout`.
+5. Run `npm run social:sync` once. For periodic sync while the process is running, use `npm run social:watch` (five-minute interval). Open `/social` and verify the workbook copy timestamp. The app sees a refreshed copy within one minute. No OS scheduler has been installed.
 
 The reader uses Google's authentication library and the `spreadsheets.readonly` scope. Existing Google Application Default Credentials with sheet access and the required scope are supported too. The connected ChatGPT Drive account does not automatically authenticate this local app.
 
@@ -51,10 +51,28 @@ Muse writes only this tab. Before writing, read its header and existing `id` and
 
 Header mismatch, malformed response, authentication failure and overflow fail the read. Individual invalid rows are skipped with row numbers and field names, without logging private contents. Duplicate IDs keep the first valid row and report later copies as invalid. An all-invalid batch fails rather than replacing the last good snapshot with an apparently empty result. A valid header-only sheet is a successful empty snapshot.
 
-Reads are bounded to 10,000 data rows. The extra column and row in `A1:O10002` detect overflow; added content in O or row 10002 fails validation. CSV input is limited to 5 MB and 25,000 characters per record; sheet responses are rejected after reading if larger than 5 MB. Keep the tab within these bounds, archive older entries deliberately if needed. Memory cache survives refresh failures but not a process restart. After failures, cached results are explicitly marked stale with the last successful read time. No private data is written to disk by this integration.
+Reads are bounded to 10,000 data rows. The extra column and row in `A1:O10002` detect overflow; added content in O or row 10002 fails validation. CSV input is limited to 5 MB and 25,000 characters per record; sheet responses are rejected after reading if larger than 5 MB. Keep the tab within these bounds, archive older entries deliberately if needed. Memory cache survives refresh failures but not a process restart. After failures, cached results are explicitly marked stale with the last successful read time. Private workbook copies are written only to `.local/social/workbook.json`, excluded from Git. Override this using `SOCIAL_SNAPSHOT_PATH` if reading a real JSON export synced through Drive. Never commit that file.
 
 All rows are rendered as escaped React text. Source links are validated HTTPS URLs and open with `noopener noreferrer`. Drafts are for review. The app never sends replies, posts, follows or messages.
 
 ## Maintenance
 
 `lib/social/schema.ts` is the source of truth; update tests, examples, documentation and the writer contract together for a new version. Never mutate v1 in place. Introduce a new tab/schema version and an explicit migration if the contract changes. The MCP printer widget remains printer-focused; the combined view is the local web dashboard.
+
+## Local snapshots and analytics
+
+The left navigation switches between `/` (printer) and `/social` (post performance, weekly findings, experiments, collection status, and optional scout queue). The API `/api/social/metrics` performs no Google network calls. The sync command handles authentication, reads all five tabs in one batch, validates headers and values, writes a temporary file with private permissions and atomically renames it. A failed sync leaves the previous file intact.
+
+Snapshots contain `{version:1,syncedAt:<RFC3339>,tabs:{<tab name>:<2D cells>}}`. Each analytics tab has its existing exact header contract. The new scout schema remains v1. A one-time private copy imported through the connected Drive tool is clearly labeled saved workbook data, never live. Automatic sync still requires local Google credentials. A `.gsheet` file is only a pointer; it does not contain rows. A real JSON export saved to a synced Drive folder can be read using `SOCIAL_SNAPSHOT_PATH`. Something must regenerate that export after workbook updates.
+
+Analytics deduplicate by account plus platform post ID (falling back to a valid source URL). For each metric, the latest non-empty value wins, ordered by snapshot date and then append order. Blank later rows preserve known earlier measurements and their date/window; they never become zero. Ranges remain ranges. Unsupported numeric strings are reported instead of estimated. Totals show coverage, mix observation windows, and sum post-level reach rather than unique audience reach. These are recorded-post totals, not account growth or a same-age performance comparison. Experiments are labeled all-account because their existing schema has no account column.
+
+For fictional performance data, copy `examples/social-workbook.json` into `.local/social/workbook.json` and restart. Do not overwrite a real private snapshot. No database is necessary until local edits, searchable history or other operational requirements justify one.
+
+## GitHub mirror connection
+
+Set `SOCIAL_DATA_REPO=owner/private-data-repo` in ignored local configuration and sign in with `gh auth login` using an account with read access. `GITHUB_CLI_PATH` can specify the installed GitHub CLI. No tokens are stored in this app. When the data repo is configured, `social:sync` fetches the GitHub mirror instead of calling Google. It verifies the repo is private, pins both reads to one `main` commit, validates `workbook/latest.json` and `scout/latest.json`, and ensures daily scout records appear consistently in the mirrored Sheet rows.
+
+Sheets remains authoritative for analytics and human review statuses. Muse appends scout rows there, reads back all five tabs, and publishes the resulting mirror with its scout run in one private Git commit. The local process never writes back to either service. Human review status changes become visible after the next workbook mirror update. Changes to Sheets alone do not immediately appear in the dashboard.
+
+The one-shot sync command is suitable for a local scheduler such as launchd. The running watch command is an alternative; do not run both. Snapshot writes are atomic, and a failed sync never overwrites the last good copy. The dashboard shows the source capture timestamp rather than claiming every local fetch is fresh Sheet data.
