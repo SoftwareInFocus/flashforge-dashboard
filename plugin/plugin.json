@@ -1,0 +1,24 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "flashforge-ad5x",
+  "version": "0.3.0",
+  "description": "Local AD5X dashboard with recent stored-file selection and reviewed print starts.",
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "FlashForge AD5X",
+        "shortDescription": "Monitor and restart stored printer files",
+        "category": "Productivity",
+        "capabilities": [
+          "Read",
+          "Write"
+        ],
+        "brandColor": "#a8bf99",
+        "defaultPrompt": [
+          "How is my AD5X print doing?",
+          "Show recent files stored on my printer."
+        ]
+      }
+    }
+  }
+}

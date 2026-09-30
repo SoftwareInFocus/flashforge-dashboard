@@ -1,0 +1,11 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+  "mcpServers": {
+    "flashforge-ad5x": {
+      "command": "node",
+      "args": [
+        "plugin/dist/server.mjs"
+      ]
+    }
+  }
+}

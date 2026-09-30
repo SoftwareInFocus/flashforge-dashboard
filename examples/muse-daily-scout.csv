@@ -1,0 +1,3 @@
+schema_version,id,scouted_at,platform,opportunity_type,creator,source_url,topic,title,reason,score,draft_text,status,notes
+1,13a987e4-0cef-4c66-8b41-87a6baebed36,2026-01-01T09:00:00Z,threads,reply,Example Creator,https://example.com/conversation,Software workflows,A useful conversation,Example opportunity for a thoughtful response,8.5,"A draft with a comma, ready for review.",new,Fictional sample
+1,4c9d1fcb-28bc-4fb8-b97b-b7650a7214f1,2026-01-01T09:00:00Z,instagram,content_idea,,,Creative process,Show the process,Example concept to adapt into original content,7,,new,Fictional sample
