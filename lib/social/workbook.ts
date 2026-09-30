@@ -2,7 +2,7 @@ import {readSnapshot} from './sync';
 import {buildAnalytics,WorkbookFile,type Analytics,type WorkbookData} from './analytics';
 import {getSheetToken,SheetReadError} from './source';
 const ranges=["'Post Metrics'!A1:AC1000","'Weekly Analysis'!A1:Z1002","'Experiments'!A1:Z1001","'Run Log'!A1:Z1001","'Muse Daily Scout'!A1:O10002"];
-export type WorkbookSnapshot={state:'live'|'snapshot'|'stale'|'unconfigured'|'error';message:string;checkedAt:string;syncedAt:string|null;analytics:Analytics|null};
+export type WorkbookSnapshot={state:'demo'|'live'|'snapshot'|'stale'|'unconfigured'|'error';message:string;checkedAt:string;syncedAt:string|null;analytics:Analytics|null};
 export async function fetchWorkbook():Promise<WorkbookData>{
  const id=process.env.SOCIAL_SHEET_ID;if(!id||!/^[A-Za-z0-9_-]+$/.test(id))throw new SheetReadError('configuration');
  const token=await getSheetToken();
@@ -36,4 +36,5 @@ export function createWorkbookReader(load:()=>Promise<WorkbookData>){
 }
 // HTTP requests never contact Google. The sync command owns network access and disk writes.
 export const snapshotPath=()=>process.env.SOCIAL_SNAPSHOT_PATH||`${process.cwd()}/.local/social/workbook.json`;
-export const readWorkbook=createWorkbookReader(()=>readSnapshot(snapshotPath()));
+const workbookReader=createWorkbookReader(()=>readSnapshot(snapshotPath()));
+export const readWorkbook=async():Promise<WorkbookSnapshot>=>{const result=await workbookReader();return process.env.SOCIAL_DEMO==='true'&&result.analytics&&result.state==='snapshot'?{...result,state:'demo',message:'Fictional sample workbook for testing. These are not live social metrics.'}:result;};
